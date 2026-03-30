@@ -1,0 +1,40 @@
+# OpenShift Groups required for Demo 03 (org catalog + team + admin policies).
+# Keep membership in sync with shared/identity/common-openshift-groups.yaml.
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-admins
+users:
+  - dana
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-research
+users:
+  - alice
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-apps
+users:
+  - alice
+  - bob
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-restricted
+users:
+  - chloe
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-org
+users:
+  - alice
+  - bob
+  - chloe

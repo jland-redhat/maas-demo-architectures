@@ -1,0 +1,9 @@
+# OpenShift Groups required for Demo 04 (multi-SKU, one owner group).
+# Keep membership in sync with shared/identity/common-openshift-groups.yaml.
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-research
+users:
+  - alice

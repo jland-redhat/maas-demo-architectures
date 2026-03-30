@@ -1,5 +1,7 @@
-# Demo 02: Single tier subscription (multi-model) + per-team auth policies.
-# All owner groups receive quota on all tier models; policies limit which models each team may call.
+# Demo 02: Three tier subscriptions (Gold / Silver / Bronze), each listing ALL five models
+# with different tokenRateLimits. Gold + Silver owners: research + apps only. Bronze adds
+# maas-demo-restricted so one team (chloe) only has bottom-tier quota. MaaSAuthPolicy slices
+# which models each team may call (independent of tier).
 ---
 apiVersion: maas.opendatahub.io/v1alpha1
 kind: MaaSSubscription
@@ -7,7 +9,89 @@ metadata:
   name: demo02-tier-gold
   namespace: models-as-a-service
   annotations:
-    openshift.io/display-name: "Demo 02 — Gold tier (multi-model)"
+    openshift.io/display-name: "Demo 02 — Gold (all models, highest quota)"
+spec:
+  owner:
+    groups:
+      - name: maas-demo-research
+      - name: maas-demo-apps
+    users: []
+  modelRefs:
+    - name: granite-3-8b-instruct
+      namespace: llm
+      tokenRateLimits:
+        - limit: 2000
+          window: 1m
+    - name: llama-3-1-8b-instruct
+      namespace: llm
+      tokenRateLimits:
+        - limit: 2000
+          window: 1m
+    - name: mistral-7b-instruct-v03
+      namespace: llm
+      tokenRateLimits:
+        - limit: 2000
+          window: 1m
+    - name: qwen2-5-7b-instruct
+      namespace: llm
+      tokenRateLimits:
+        - limit: 2000
+          window: 1m
+    - name: gpt-oss-20b-sample
+      namespace: llm
+      tokenRateLimits:
+        - limit: 2000
+          window: 1m
+  priority: 60
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSSubscription
+metadata:
+  name: demo02-tier-silver
+  namespace: models-as-a-service
+  annotations:
+    openshift.io/display-name: "Demo 02 — Silver (all models, medium quota)"
+spec:
+  owner:
+    groups:
+      - name: maas-demo-research
+      - name: maas-demo-apps
+    users: []
+  modelRefs:
+    - name: granite-3-8b-instruct
+      namespace: llm
+      tokenRateLimits:
+        - limit: 500
+          window: 1m
+    - name: llama-3-1-8b-instruct
+      namespace: llm
+      tokenRateLimits:
+        - limit: 500
+          window: 1m
+    - name: mistral-7b-instruct-v03
+      namespace: llm
+      tokenRateLimits:
+        - limit: 500
+          window: 1m
+    - name: qwen2-5-7b-instruct
+      namespace: llm
+      tokenRateLimits:
+        - limit: 500
+          window: 1m
+    - name: gpt-oss-20b-sample
+      namespace: llm
+      tokenRateLimits:
+        - limit: 500
+          window: 1m
+  priority: 45
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSSubscription
+metadata:
+  name: demo02-tier-bronze
+  namespace: models-as-a-service
+  annotations:
+    openshift.io/display-name: "Demo 02 — Bronze (all models, sandbox quota)"
 spec:
   owner:
     groups:
@@ -19,29 +103,29 @@ spec:
     - name: granite-3-8b-instruct
       namespace: llm
       tokenRateLimits:
-        - limit: 100000
+        - limit: 50
           window: 1m
     - name: llama-3-1-8b-instruct
       namespace: llm
       tokenRateLimits:
-        - limit: 100000
+        - limit: 50
           window: 1m
     - name: mistral-7b-instruct-v03
       namespace: llm
       tokenRateLimits:
-        - limit: 100000
+        - limit: 50
           window: 1m
     - name: qwen2-5-7b-instruct
       namespace: llm
       tokenRateLimits:
-        - limit: 100000
+        - limit: 50
           window: 1m
     - name: gpt-oss-20b-sample
       namespace: llm
       tokenRateLimits:
-        - limit: 100000
+        - limit: 50
           window: 1m
-  priority: 50
+  priority: 28
 ---
 apiVersion: maas.opendatahub.io/v1alpha1
 kind: MaaSAuthPolicy
@@ -49,12 +133,14 @@ metadata:
   name: demo02-research-slice
   namespace: models-as-a-service
   annotations:
-    openshift.io/display-name: "Demo 02 — Research may use Granite + Qwen"
+    openshift.io/display-name: "Demo 02 — Research: Granite, Qwen, GPT-OSS"
 spec:
   modelRefs:
     - name: granite-3-8b-instruct
       namespace: llm
     - name: qwen2-5-7b-instruct
+      namespace: llm
+    - name: gpt-oss-20b-sample
       namespace: llm
   subjects:
     groups:
@@ -67,12 +153,14 @@ metadata:
   name: demo02-apps-slice
   namespace: models-as-a-service
   annotations:
-    openshift.io/display-name: "Demo 02 — Apps may use Llama + Mistral"
+    openshift.io/display-name: "Demo 02 — Apps: Llama, Mistral, GPT-OSS"
 spec:
   modelRefs:
     - name: llama-3-1-8b-instruct
       namespace: llm
     - name: mistral-7b-instruct-v03
+      namespace: llm
+    - name: gpt-oss-20b-sample
       namespace: llm
   subjects:
     groups:
@@ -85,7 +173,7 @@ metadata:
   name: demo02-restricted-slice
   namespace: models-as-a-service
   annotations:
-    openshift.io/display-name: "Demo 02 — Restricted may use Llama only"
+    openshift.io/display-name: "Demo 02 — Restricted: Llama only"
 spec:
   modelRefs:
     - name: llama-3-1-8b-instruct

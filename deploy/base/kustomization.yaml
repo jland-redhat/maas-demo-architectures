@@ -1,0 +1,10 @@
+# Base: namespaces, OpenShift Groups, five simulator LLMInferenceServices, five MaaSModelRefs.
+# Does not apply MaaSSubscription / MaaSAuthPolicy — use an overlay under deploy/overlays/.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespaces.yaml
+  - groups.yaml
+  - inference/simulators.yaml
+  - maas-modelrefs/modelrefs.yaml

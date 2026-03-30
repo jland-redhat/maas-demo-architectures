@@ -1,0 +1,38 @@
+# OpenShift Groups required for Demo 01 (paired subscription + policy).
+# Keep membership in sync with shared/identity/common-openshift-groups.yaml.
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-line-granite
+users:
+  - alice
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-line-llama
+users:
+  - bob
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-line-mistral
+users:
+  - chloe
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-line-qwen
+users:
+  - dana
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-line-gpt
+users:
+  - alice
+  - dana

@@ -1,0 +1,71 @@
+# Register each simulator with MaaS (namespace models-as-a-service policies reference llm + name).
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: granite-3-8b-instruct
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "IBM Granite 3.8B Instruct (simulated)"
+spec:
+  modelRef:
+    kind: LLMInferenceService
+    name: granite-3-8b-instruct
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: llama-3-1-8b-instruct
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "Meta Llama 3.1 8B Instruct (simulated)"
+spec:
+  modelRef:
+    kind: LLMInferenceService
+    name: llama-3-1-8b-instruct
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: mistral-7b-instruct-v03
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "Mistral 7B Instruct v0.3 (simulated)"
+spec:
+  modelRef:
+    kind: LLMInferenceService
+    name: mistral-7b-instruct-v03
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: qwen2-5-7b-instruct
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "Qwen 2.5 7B Instruct (simulated)"
+spec:
+  modelRef:
+    kind: LLMInferenceService
+    name: qwen2-5-7b-instruct
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: gpt-oss-20b-sample
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "GPT-OSS 20B sample (simulated)"
+spec:
+  modelRef:
+    kind: LLMInferenceService
+    name: gpt-oss-20b-sample

@@ -1,0 +1,6 @@
+# Simulators + MaaSModelRefs + groups only (no entitlements). Use when you manage MaaSSubscription/MaaSAuthPolicy yourself.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base

@@ -1,4 +1,5 @@
-# Demo 06: tokenMetadata (subscription) + meteringMetadata (policy) for attribution labels.
+# Demo 06: tokenMetadata + meteringMetadata across a five-model prod subscription
+# and three policies with different chargeback labels.
 ---
 apiVersion: maas.opendatahub.io/v1alpha1
 kind: MaaSSubscription
@@ -6,18 +7,39 @@ metadata:
   name: demo06-subscription-prod
   namespace: models-as-a-service
   annotations:
-    openshift.io/display-name: "Demo 06 — Prod catalog (labeled)"
+    openshift.io/display-name: "Demo 06 — Prod catalog (metering labels)"
 spec:
   owner:
     groups:
       - name: maas-demo-apps
       - name: maas-demo-research
+      - name: maas-demo-restricted
     users: []
   modelRefs:
+    - name: granite-3-8b-instruct
+      namespace: llm
+      tokenRateLimits:
+        - limit: 2000
+          window: 1m
     - name: llama-3-1-8b-instruct
       namespace: llm
       tokenRateLimits:
-        - limit: 60000
+        - limit: 2000
+          window: 1m
+    - name: mistral-7b-instruct-v03
+      namespace: llm
+      tokenRateLimits:
+        - limit: 2000
+          window: 1m
+    - name: qwen2-5-7b-instruct
+      namespace: llm
+      tokenRateLimits:
+        - limit: 2000
+          window: 1m
+    - name: gpt-oss-20b-sample
+      namespace: llm
+      tokenRateLimits:
+        - limit: 50
           window: 1m
   priority: 40
   tokenMetadata:
@@ -30,11 +52,13 @@ spec:
 apiVersion: maas.opendatahub.io/v1alpha1
 kind: MaaSAuthPolicy
 metadata:
-  name: demo06-policy-research-prod
+  name: demo06-policy-research
   namespace: models-as-a-service
 spec:
   modelRefs:
-    - name: llama-3-1-8b-instruct
+    - name: granite-3-8b-instruct
+      namespace: llm
+    - name: qwen2-5-7b-instruct
       namespace: llm
   subjects:
     groups:
@@ -50,11 +74,15 @@ spec:
 apiVersion: maas.opendatahub.io/v1alpha1
 kind: MaaSAuthPolicy
 metadata:
-  name: demo06-policy-apps-prod
+  name: demo06-policy-apps
   namespace: models-as-a-service
 spec:
   modelRefs:
     - name: llama-3-1-8b-instruct
+      namespace: llm
+    - name: mistral-7b-instruct-v03
+      namespace: llm
+    - name: gpt-oss-20b-sample
       namespace: llm
   subjects:
     groups:
@@ -66,3 +94,23 @@ spec:
     labels:
       team: apps
       chargeback: app-llm
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSAuthPolicy
+metadata:
+  name: demo06-policy-restricted
+  namespace: models-as-a-service
+spec:
+  modelRefs:
+    - name: llama-3-1-8b-instruct
+      namespace: llm
+  subjects:
+    groups:
+      - name: maas-demo-restricted
+    users: []
+  meteringMetadata:
+    organizationId: acme-corp-demo
+    costCenter: "6600"
+    labels:
+      team: restricted
+      chargeback: low-risk-llm

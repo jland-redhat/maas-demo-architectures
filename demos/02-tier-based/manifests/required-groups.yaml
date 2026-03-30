@@ -1,0 +1,24 @@
+# OpenShift Groups required for Demo 02 (tier subscriptions + team slices).
+# Keep membership in sync with shared/identity/common-openshift-groups.yaml.
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-research
+users:
+  - alice
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-apps
+users:
+  - alice
+  - bob
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-restricted
+users:
+  - chloe
