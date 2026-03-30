@@ -2,27 +2,7 @@
 
 Demonstration layouts for **[opendatahub-io/models-as-a-service](https://github.com/opendatahub-io/models-as-a-service/)** (MaaS on OpenShift with Gateway API, KServe `LLMInferenceService`, Kuadrant/Authorino/Limitador, and the MaaS API). This repository does **not** fork upstream; it provides **named patterns**, **sample `MaaSSubscription` / `MaaSAuthPolicy` YAML**, and **identity** notes you can layer on after you deploy the stack.
 
-**Demo lab users:** `alice`, `bob`, `chloe`, `dana` — sample identities you create in your IdP (for example HTPasswd). They are not special to OpenShift; membership in the groups below is what drives MaaS entitlements in these examples.
-
-## Lab users and groups
-
-Group membership is declared in [shared/identity/common-openshift-groups.yaml](shared/identity/common-openshift-groups.yaml) (and duplicated in [deploy/base/groups.yaml](deploy/base/groups.yaml) for Kustomize). A user may belong to **several** groups; the same person can appear in both a **team** group (research, apps, …) and a **line-item** group (`maas-demo-line-*`) for Demo 01.
-
-| User | OpenShift `Group` membership in this repo |
-|------|-------------------------------------------|
-| **alice** | `maas-demo-research`, `maas-demo-apps`, `maas-demo-org`, `maas-demo-line-granite`, `maas-demo-line-gpt` |
-| **bob** | `maas-demo-apps`, `maas-demo-org`, `maas-demo-line-llama` |
-| **chloe** | `maas-demo-restricted`, `maas-demo-org`, `maas-demo-line-mistral` |
-| **dana** | `maas-demo-admins`, `maas-demo-line-qwen`, `maas-demo-line-gpt` |
-
-**In plain terms**
-
-- **alice** — Plays both “research” and “apps” in team demos; in Demo 01 she is entitled to **Granite** and **GPT-OSS** line items (two separate groups on purpose).
-- **bob** — App developer: **Llama** line item in Demo 01; **apps** team in tier/org demos.
-- **chloe** — Restricted / low-trust path: **Mistral** line item; **restricted** team where those demos need it.
-- **dana** — Platform operator: **admins** group for full-catalog demos; **Qwen** line item; shares **GPT-OSS** line item with alice to show two people on one entitlement.
-
-`dana` is the only user in **`maas-demo-admins`**. Individual demo READMEs spell out **who can call which models** in that scenario.
+**Demo lab users:** `alice`, `bob`, `chloe`, `dana` — sample identities you create in your IdP (for example HTPasswd). They are not special to OpenShift; **group membership** drives MaaS entitlements. Each [demos/](demos/) pattern documents **which OpenShift `Group` objects** apply in that scenario; the canonical declaration for a **full** lab (all groups at once) is [shared/identity/common-openshift-groups.yaml](shared/identity/common-openshift-groups.yaml) (duplicated in [deploy/base/groups.yaml](deploy/base/groups.yaml) for Kustomize).
 
 ## Deploy the product first
 

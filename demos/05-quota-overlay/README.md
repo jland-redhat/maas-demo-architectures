@@ -18,6 +18,16 @@ You need **one** subscription that covers the **whole** catalog but **expensive*
 
 All three are **owners** on the same **`MaaSSubscription`** (shared quota envelope), but **policies** limit which models each person can actually invoke.
 
+### OpenShift `Group` membership (this demo)
+
+| User | `Group` users in `manifests/required-groups.yaml` |
+|------|---------------------------------------------------|
+| **alice** | `maas-demo-research` |
+| **bob** | `maas-demo-research`, `maas-demo-apps` |
+| **chloe** | `maas-demo-restricted` |
+
+See [demos/README.md — Full lab identity](../README.md#full-lab-identity-openshift-groups) for the full four-user matrix.
+
 ## Diagrams
 
 ### Quota heatmap (per model, same subscription)

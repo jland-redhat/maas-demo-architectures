@@ -23,6 +23,17 @@ It is a good **first** policy layout before you introduce shared tier subscripti
 
 Log in as each user (or use `--as` / `--as-group` as a cluster admin) to see only the models that user’s groups unlock.
 
+### OpenShift `Group` membership (this demo)
+
+`manifests/required-groups.yaml` applies **only** the **`maas-demo-line-*`** groups above. If you use the full [common-openshift-groups.yaml](../../shared/identity/common-openshift-groups.yaml) / [deploy/base/groups.yaml](../../deploy/base/groups.yaml) install, the same users also carry **team** and **org** groups used by other demos — see the [full lab identity table](../README.md#full-lab-identity-openshift-groups) in [demos/README.md](../README.md).
+
+| User | `Group` users in this demo’s YAML |
+|------|-----------------------------------|
+| **alice** | `maas-demo-line-granite`, `maas-demo-line-gpt` |
+| **bob** | `maas-demo-line-llama` |
+| **chloe** | `maas-demo-line-mistral` |
+| **dana** | `maas-demo-line-qwen`, `maas-demo-line-gpt` |
+
 ## What “paired” means (subscription ↔ policy via group)
 
 For each entitlement you define:

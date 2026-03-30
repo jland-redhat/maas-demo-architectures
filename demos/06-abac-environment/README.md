@@ -12,6 +12,18 @@ Billing or FinOps needs **labels** and **chargeback** dimensions on usage in add
 
 Same people and team splits as [Demo 05](../05-quota-overlay/): **alice** (research), **bob** (apps), **chloe** (restricted). Here the README focus is **billing metadata** on the subscription vs on each policy (`chargeback: rnd-llm`, `app-llm`, `low-risk-llm`), not different users.
 
+### OpenShift `Group` membership (this demo)
+
+Same **`manifests/required-groups.yaml`** as Demo 05:
+
+| User | `Group` users |
+|------|---------------|
+| **alice** | `maas-demo-research` |
+| **bob** | `maas-demo-research`, `maas-demo-apps` |
+| **chloe** | `maas-demo-restricted` |
+
+See [demos/README.md — Full lab identity](../README.md#full-lab-identity-openshift-groups) for the full lab matrix.
+
 ## Diagrams
 
 ### Subscription metadata vs policy metadata

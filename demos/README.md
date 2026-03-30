@@ -2,7 +2,7 @@
 
 Each folder is a **governance pattern** for [opendatahub-io/models-as-a-service](https://github.com/opendatahub-io/models-as-a-service/) using real **`maas.opendatahub.io/v1alpha1`** resources. Read [Access and Quota Overview](https://github.com/opendatahub-io/models-as-a-service/blob/main/docs/content/configuration-and-management/subscription-overview.md) first: **`MaaSAuthPolicy`** = access, **`MaaSSubscription`** = quota; both must allow the request.
 
-**The cast (lab users):** every README below ties the YAML to **`alice`**, **`bob`**, **`chloe`**, and **`dana`** — who they are and which **OpenShift groups** they belong to is defined in the root [README](../README.md#lab-users-and-groups). Each demo adds a **“Who’s who”** section so you can read it as *people and what they can invoke*, not only CRD names.
+**The cast (lab users):** each folder below ties the YAML to **`alice`**, **`bob`**, **`chloe`**, and **`dana`**. Every demo README includes **OpenShift `Group` membership** for that pattern (and a **“Who’s who”** for what they can invoke). A **full** four-user matrix (all groups in one place) is in [Full lab identity](#full-lab-identity-openshift-groups) below.
 
 **Prerequisite:** deploy upstream MaaS. To install **simulators + model refs + groups + entitlements** in one step, use Kustomize ([deploy/README.md](../deploy/README.md)) instead of hand-applying each demo manifest.
 
@@ -29,6 +29,24 @@ Each folder is a **governance pattern** for [opendatahub-io/models-as-a-service]
 Shared: [shared/models/catalog.yaml](../shared/models/catalog.yaml), [shared/identity/](../shared/identity/).
 
 Each demo’s **`manifests/required-groups.yaml`** applies only the **OpenShift `Group`** objects that demo’s `MaaSSubscription` / `MaaSAuthPolicy` reference (subset of [common-openshift-groups.yaml](../shared/identity/common-openshift-groups.yaml)). Full installs via [deploy/README.md](../deploy/README.md) still use **`deploy/base/groups.yaml`** (all demo groups at once).
+
+## Full lab identity (OpenShift groups)
+
+Use this when you load **`deploy/base/groups.yaml`** (or [common-openshift-groups.yaml](../shared/identity/common-openshift-groups.yaml)) so every demo’s groups exist at once. A user may belong to **several** groups; **team** groups (`maas-demo-research`, …) and **line-item** groups (`maas-demo-line-*`) from Demo 01 can coexist on the same user.
+
+| User | OpenShift `Group` membership |
+|------|------------------------------|
+| **alice** | `maas-demo-research`, `maas-demo-apps`, `maas-demo-org`, `maas-demo-line-granite`, `maas-demo-line-gpt` |
+| **bob** | `maas-demo-apps`, `maas-demo-org`, `maas-demo-line-llama` |
+| **chloe** | `maas-demo-restricted`, `maas-demo-org`, `maas-demo-line-mistral` |
+| **dana** | `maas-demo-admins`, `maas-demo-line-qwen`, `maas-demo-line-gpt` |
+
+**Personas (cross-demo)**
+
+- **alice** — Research and apps in team-based demos; in Demo 01, **Granite** and **GPT-OSS** line items (two groups on purpose).
+- **bob** — Apps team; Demo 01 **Llama** line item.
+- **chloe** — Restricted team; Demo 01 **Mistral** line item.
+- **dana** — Only user in **`maas-demo-admins`** for full-catalog admin policy; Demo 01 **Qwen** line item; shares **GPT-OSS** line item with alice.
 
 ## Lab hygiene
 

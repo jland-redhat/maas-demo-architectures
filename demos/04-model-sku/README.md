@@ -14,6 +14,14 @@ Only **alice** is in **`maas-demo-research`**. She is the stand-in for “one R&
 
 **bob**, **chloe**, and **dana** are not in `maas-demo-research` in [common-openshift-groups](../../shared/identity/common-openshift-groups.yaml), so they would **not** receive quota or access from this demo’s YAML unless you add them to `maas-demo-research`.
 
+### OpenShift `Group` membership (this demo)
+
+| User | `Group` users in `manifests/required-groups.yaml` |
+|------|---------------------------------------------------|
+| **alice** | `maas-demo-research` |
+
+See [demos/README.md — Full lab identity](../README.md#full-lab-identity-openshift-groups) for how other users are wired in other demos.
+
 ## Diagrams
 
 ### Five SKUs, one owner group

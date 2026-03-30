@@ -22,6 +22,17 @@ This is the same **subscription + slice** mechanism as [Demo 02](../02-tier-base
 
 So **org** membership answers “do we have quota?”; **team** (and **admin**) groups answer “which routes may I call?”.
 
+### OpenShift `Group` membership (this demo)
+
+| User | `Group` users in `manifests/required-groups.yaml` |
+|------|---------------------------------------------------|
+| **alice** | `maas-demo-org`, `maas-demo-research` |
+| **bob** | `maas-demo-org`, `maas-demo-apps` |
+| **chloe** | `maas-demo-org`, `maas-demo-restricted` |
+| **dana** | `maas-demo-admins` |
+
+Cross-demo membership for the same users is summarized in [demos/README.md — Full lab identity](../README.md#full-lab-identity-openshift-groups).
+
 ## Diagrams
 
 ### One subscription, many policies

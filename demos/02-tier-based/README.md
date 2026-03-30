@@ -20,6 +20,16 @@ You sell **three commercial tiers** — **Gold**, **Silver**, **Bronze**. Each t
 
 **alice** and **bob** are owners on **Gold, Silver, and Bronze**. **chloe** is an owner **only on Bronze**, so her tier quota is **bottom-tier only**—a clear “sandbox / low trust” story. **Access** (which models) still comes from the **team** policy, not from tier name alone.
 
+### OpenShift `Group` membership (this demo)
+
+| User | `Group` users in `manifests/required-groups.yaml` |
+|------|---------------------------------------------------|
+| **alice** | `maas-demo-research` |
+| **bob** | `maas-demo-research`, `maas-demo-apps` |
+| **chloe** | `maas-demo-restricted` |
+
+For a **combined** lab identity (line-item groups, org, admins, …), see [demos/README.md — Full lab identity](../README.md#full-lab-identity-openshift-groups).
+
 ## Diagrams
 
 ### Five models × three tiers (each tier covers all models)

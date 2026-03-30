@@ -50,7 +50,7 @@ Manifests use **small numbers** so live demos stay easy: roughly **50–2000 tok
 
 ## Lab users and passwords
 
-Groups reference users **`alice`**, **`bob`**, **`chloe`**, **`dana`**. They must exist in your IdP. **Who is in which group** (and what each demo means for them) is documented in the root [README](../README.md#lab-users-and-groups) and in each [demo README](../demos/README.md). For an **HTPasswd** IdP, generate a file with [shared/identity/htpasswd-sample-users.sh](../shared/identity/htpasswd-sample-users.sh), create the OAuth secret, and add the IdP to the cluster (see OpenShift **Identity Providers** documentation).
+Groups reference users **`alice`**, **`bob`**, **`chloe`**, **`dana`**. They must exist in your IdP. **Who is in which group** (and what each demo means for them) is documented per pattern under [demos/](../demos/README.md), with a **full** membership matrix in [demos/README.md — Full lab identity](../demos/README.md#full-lab-identity-openshift-groups). For an **HTPasswd** IdP, generate a file with [shared/identity/htpasswd-sample-users.sh](../shared/identity/htpasswd-sample-users.sh), create the OAuth secret, and add the IdP to the cluster (see OpenShift **Identity Providers** documentation).
 
 ## Log in as a specific user (real credentials)
 

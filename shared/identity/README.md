@@ -11,7 +11,7 @@
 | **chloe** | Restricted / low-trust; Demo 01: Mistral line item | **`maas-demo-restricted`**. |
 | **dana** | Operator; **`maas-demo-admins`**; Demo 01: Qwen + shared GPT | Full-catalog and break-glass demos. |
 
-The full membership table lives in the root [README](../../README.md#lab-users-and-groups). Demo READMEs explain **per-scenario** what each person can call.
+The full membership table lives in [demos/README.md — Full lab identity](../../demos/README.md#full-lab-identity-openshift-groups). Each demo README also lists **OpenShift `Group` membership** for that scenario.
 
 ## Common groups (this repo)
 
