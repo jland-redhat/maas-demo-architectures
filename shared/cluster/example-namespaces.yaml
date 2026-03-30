@@ -1,0 +1,16 @@
+# Align with upstream MaaS samples: workloads in `llm`, control-plane API objects in `models-as-a-service`.
+# See: https://github.com/opendatahub-io/models-as-a-service/tree/main/docs/samples
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: models-as-a-service
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures

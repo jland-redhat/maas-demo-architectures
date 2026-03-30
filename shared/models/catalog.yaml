@@ -1,0 +1,26 @@
+# Suggested MaaSModelRef names for demos (metadata.name in namespace `llm`).
+# Deploy the upstream LLMInferenceService + MaaSModelRef first, or align these
+# names with your own models. Display names are for annotations only.
+#
+# Upstream samples: https://github.com/opendatahub-io/models-as-a-service/tree/main/docs/samples
+
+models:
+  - maasModelRefName: granite-3-8b-instruct
+    displayName: IBM Granite 3.8B Instruct
+    notes: "Representative Granite-class deployment."
+
+  - maasModelRefName: llama-3-1-8b-instruct
+    displayName: Meta Llama 3.1 8B Instruct
+    notes: "Llama-family mid-size instruct model."
+
+  - maasModelRefName: mistral-7b-instruct-v03
+    displayName: Mistral 7B Instruct v0.3
+    notes: "Short name segment for Kubernetes (no slashes in metadata.name)."
+
+  - maasModelRefName: qwen2-5-7b-instruct
+    displayName: Qwen 2.5 7B Instruct
+    notes: "Multilingual-friendly instruct model."
+
+  - maasModelRefName: gpt-oss-20b-sample
+    displayName: GPT-OSS 20B (sample)
+    notes: "Placeholder for an OSS stack in the GPT weight class; rename to match your serving name."
