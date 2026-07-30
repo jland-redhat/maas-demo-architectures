@@ -1,0 +1,18 @@
+# Optional: grant apps group the partner tenant-admin Role (created by AITenant controller).
+# Apply after AITenant/partner is Ready. Safe to re-apply.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: demo08-partner-tenant-admin
+  namespace: ai-tenant-partner
+  labels:
+    maas.demo/tenant: partner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: aitenant-partner-tenant-admin
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: maas-demo-apps

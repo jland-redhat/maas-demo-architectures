@@ -1,0 +1,19 @@
+# Claude Opus 4.8 via Vertex Anthropic Messages (rawPredict).
+---
+apiVersion: inference.opendatahub.io/v1alpha1
+kind: ExternalModel
+metadata:
+  name: vertex-claude-opus-4-8
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "Claude Opus 4.8 (Vertex AI)"
+spec:
+  externalProviderRefs:
+    - ref:
+        name: vertex
+      targetModel: claude-opus-4-8
+      apiFormat: vertex-messages
+      path: /v1/projects/{project}/locations/{location}/publishers/anthropic/models/claude-opus-4-8:rawPredict
+      weight: 100

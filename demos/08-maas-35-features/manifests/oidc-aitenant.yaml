@@ -1,0 +1,28 @@
+# Demo 08 — OIDC tenant (AITenant) with External OIDC.
+# Apply via scripts/apply-oidc-tenant.sh which substitutes ${OIDC_ISSUER_URL}
+# (https://keycloak.<cluster-domain>/realms/tenant-a) from the upstream Keycloak
+# test realm. Client ID matches docs/samples/install/keycloak/test-realms (test-client).
+#
+# Gateway oidc must already exist in openshift-ingress (created by the same script).
+# Upstream shape: https://github.com/opendatahub-io/models-as-a-service/blob/main/docs/content/reference/crds/ai-tenant.md
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: AITenant
+metadata:
+  name: oidc
+  namespace: ai-tenants
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+    maas.demo/tenant: oidc
+  annotations:
+    openshift.io/display-name: "OIDC tenant (Keycloak)"
+    openshift.io/description: "External OIDC via Keycloak realm tenant-a / client test-client"
+spec:
+  # Explicit Gateway ref (Gateway object name in openshift-ingress)
+  gateway:
+    name: oidc
+  # External OIDC — required fields clientId + issuerUrl (JWKS validation, no client secret)
+  oidc:
+    issuerUrl: ${OIDC_ISSUER_URL}
+    clientId: test-client
+    ttl: 300

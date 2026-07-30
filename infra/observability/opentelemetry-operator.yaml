@@ -1,0 +1,19 @@
+---
+# Red Hat build of OpenTelemetry — OpenTelemetryCollector CRD used by the
+# ODH/RHOAI monitoring service when DSCI metrics are configured.
+#
+# Source pattern:
+#   https://github.com/rh-aiservices-bu/RHOAI-MaaS-Embedding-Model/blob/main/opentelemetry-operator.yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: opentelemetry-product
+  namespace: openshift-operators
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+spec:
+  channel: stable
+  name: opentelemetry-product
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic

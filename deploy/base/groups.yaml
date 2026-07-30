@@ -1,4 +1,19 @@
 # Keep in sync with shared/identity/common-openshift-groups.yaml (oc kustomize cannot reference files outside deploy/base).
+# Apply after your IdP is configured; users listed here must exist in the IdP.
+# Duplicated under deploy/base/groups.yaml for oc apply -k (keep both copies in sync).
+---
+# Presenter / break-glass: added to every MaaSSubscription owner + MaaSAuthPolicy subjects
+# in this repo. Defaults cover common lab cluster-admin IdP users; add more with:
+#   oc adm groups add-users maas-admin <user>
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-admin
+users:
+  - htpasswd-cluster-admin-user
+  - kubeadmin
+  - cluster-admin
+  - admin
 ---
 apiVersion: user.openshift.io/v1
 kind: Group
@@ -38,6 +53,7 @@ users:
   - bob
   - chloe
 ---
+# Demo 01 — one group per subscription+policy pair (here: one model per pair; bundles use same pattern)
 apiVersion: user.openshift.io/v1
 kind: Group
 metadata:

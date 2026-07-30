@@ -1,4 +1,8 @@
 # Register each simulator with MaaS (namespace models-as-a-service policies reference llm + name).
+# openshift.io/display-name → modelDetails.displayName (AI Assets / Gen AI Studio labels).
+# Do not set opendatahub.io/context-window: K8s annotations are strings, but Gen AI BFF
+# expects modelDetails.contextWindow as a JSON number and 502s the whole MaaS list if present.
+# Simulator max length is still set via --max-model-len on the LLMInferenceService pods.
 ---
 apiVersion: maas.opendatahub.io/v1alpha1
 kind: MaaSModelRef

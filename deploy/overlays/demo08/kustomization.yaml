@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - ../../../demos/08-maas-35-features/manifests/external-model.yaml
+  - ../../../demos/08-maas-35-features/manifests/streaming-model.yaml
+  - ../../../demos/08-maas-35-features/manifests/maas-entitlements.yaml

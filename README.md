@@ -21,19 +21,35 @@ The controller and gateway enforce a **dual check** (see upstream [Access and Qu
 |---------|-----|------|
 | **Access** | `MaaSAuthPolicy` | Who may call which models (`spec.subjects`) |
 | **Quota** | `MaaSSubscription` | Token rate limits per model for owners (`spec.owner` + `spec.modelRefs`) |
-| **Catalog** | `MaaSModelRef` | Registers `LLMInferenceService` endpoints (usually in namespace `llm`) |
+| **Catalog** | `MaaSModelRef` | Registers backends (`LLMInferenceService` or `ExternalModel`) in the **model** namespace (usually `llm`) |
+| **Tenancy** | `AITenant` + `MaasTenantConfig` | Platform tenant registry (`ai-tenants`) + runtime config in the tenant namespace |
 
-`MaaSAuthPolicy` and `MaaSSubscription` are typically in the **`models-as-a-service`** namespace; they reference `MaaSModelRef` by **`name` + `namespace`** (often `llm`). You need **both** a matching policy and subscription for a caller to succeed.
+`MaaSAuthPolicy` and `MaaSSubscription` live in a **tenant namespace** that contains **`MaasTenantConfig/default-tenant`** (default: **`models-as-a-service`**). They reference `MaaSModelRef` by **`name` + `namespace`** (often `llm`). You need **both** a matching policy and subscription for a caller to succeed. [Demo 08](demos/08-maas-35-features/) adds **`partner`** and **`oidc`** tenants (OIDC uses upstream Keycloak samples).
+
+**API keys:** programmatic clients (including agents) use **`sk-oai-*`** keys minted via `POST /v1/api-keys` while authenticated with OpenShift. Each key stores the caller’s groups and is **bound to one subscription**; use the optional **`subscription`** field at mint time when a user owns several (see [Demo 02](demos/02-tier-based/) and [Demo 07](demos/07-openclaw-agent/)).
+
+**Inference (RHOAI / ODH 3.5+):** prefer **body-based routing** — `POST https://maas.<domain>/v1/chat/completions` with the model **`id`** in the JSON body (requires IPP). Path-based URLs (`…/llm/<name>/v1/chat/completions`) still work. Details in [Demo 08](demos/08-maas-35-features/).
 
 ## Contents of this repo
 
 | Path | Purpose |
 |------|---------|
+| [infra/](infra/README.md) | Lab prerequisites: **Kuadrant CR**, **Gateway + TLS**, **Authorino TLS**, **PostgreSQL** / `maas-db-config`, **DSCI metrics** (Showback) |
 | [shared/models/catalog.yaml](shared/models/catalog.yaml) | Realistic model **display** names and suggested **`MaaSModelRef` metadata names** |
 | [shared/identity/](shared/identity/) | OpenShift `Group` samples and optional `htpasswd` helper for labs |
-| [shared/cluster/](shared/cluster/) | Namespace examples (`llm`, `models-as-a-service`) |
-| [demos/](demos/) | Six governance patterns; each includes `manifests/required-groups.yaml` (subset of `Group` for that demo), `maas-entitlements.yaml`, and README |
+| [shared/cluster/](shared/cluster/) | Namespace layout (`llm`, `models-as-a-service`, `ai-tenants`) |
+| [demos/](demos/) | Eight patterns (governance + 3.5 gateway features); each includes `manifests/required-groups.yaml`, entitlements, and README |
 | [deploy/](deploy/README.md) | **Kustomize** install: five simulator `LLMInferenceService` + `MaaSModelRef`, groups, and entitlements |
+
+## Lab infra (before demos)
+
+Kuadrant instance, default gateway TLS, Authorino TLS, PostgreSQL, and DSCI monitoring (Showback/FinOps):
+
+```bash
+./infra/scripts/install-infra.sh
+```
+
+Or piecemeal: `./infra/scripts/setup-postgres.sh`, `./infra/scripts/setup-observability.sh`. See [infra/README.md](infra/README.md).
 
 ## Install simulators, model refs, groups, and entitlements
 

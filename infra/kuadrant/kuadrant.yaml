@@ -1,0 +1,11 @@
+# Kuadrant instance CR — applies Authorino + Limitador via the Kuadrant/RHCL operator.
+# Upstream: https://github.com/opendatahub-io/models-as-a-service/blob/main/scripts/data/kuadrant.yaml
+#           https://github.com/opendatahub-io/models-as-a-service/blob/main/deployment/base/networking/odh/kuadrant.yaml
+#
+# Namespace is set by kustomization / setup-kuadrant.sh (kuadrant-system or rh-connectivity-link).
+---
+apiVersion: kuadrant.io/v1beta1
+kind: Kuadrant
+metadata:
+  name: kuadrant
+spec: {}

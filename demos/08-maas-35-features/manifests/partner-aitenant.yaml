@@ -1,0 +1,20 @@
+# Demo 08 — partner tenant (AITenant).
+# Gateway must already exist (scripts/apply-partner-tenant.sh creates Gateway/partner
+# in openshift-ingress). Namespace for the Gateway is controller-configured
+# (--gateway-namespace, default openshift-ingress) and appears on status.gatewayRef.
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: AITenant
+metadata:
+  name: partner
+  namespace: ai-tenants
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+    maas.demo/tenant: partner
+  annotations:
+    openshift.io/display-name: "Partner tenant"
+    openshift.io/description: "Isolated partner gateway, catalog, and entitlements"
+spec:
+  # Explicit Gateway ref (do not rely on name-defaulting to metadata.name)
+  gateway:
+    name: partner

@@ -13,6 +13,7 @@ metadata:
 spec:
   owner:
     groups:
+      - name: maas-admin
       - name: maas-demo-line-granite
     users: []
   modelRefs:
@@ -34,6 +35,7 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-line-granite
     users: []
 ---
@@ -47,6 +49,7 @@ metadata:
 spec:
   owner:
     groups:
+      - name: maas-admin
       - name: maas-demo-line-llama
     users: []
   modelRefs:
@@ -68,6 +71,7 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-line-llama
     users: []
 ---
@@ -81,6 +85,7 @@ metadata:
 spec:
   owner:
     groups:
+      - name: maas-admin
       - name: maas-demo-line-mistral
     users: []
   modelRefs:
@@ -102,6 +107,7 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-line-mistral
     users: []
 ---
@@ -115,6 +121,7 @@ metadata:
 spec:
   owner:
     groups:
+      - name: maas-admin
       - name: maas-demo-line-qwen
     users: []
   modelRefs:
@@ -136,6 +143,7 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-line-qwen
     users: []
 ---
@@ -149,6 +157,7 @@ metadata:
 spec:
   owner:
     groups:
+      - name: maas-admin
       - name: maas-demo-line-gpt
     users: []
   modelRefs:
@@ -170,5 +179,6 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-line-gpt
     users: []

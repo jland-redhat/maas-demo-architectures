@@ -1,0 +1,25 @@
+# Enables the ODH/RHOAI monitoring stack by configuring metrics storage on
+# DSCInitialization. An empty spec.monitoring.metrics ({}) leaves:
+#   MonitoringStackAvailable=False  reason=MetricsNotConfigured
+# and Showback/FinOps usage views will not work.
+#
+# Setting metrics.storage provisions MonitoringStack (Prometheus), OTEL collector,
+# Thanos Querier, and Perses in the DSCI monitoring namespace.
+#
+# Requires Cluster Observability Operator + OpenTelemetry Operator first.
+#
+# Namespace below is RHOAI default; setup-observability.sh patches the live DSCI
+# and preserves applicationsNamespace / monitoring.namespace from the cluster.
+#
+# Docs:
+#   https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_openshift_ai/managing-observability_managing-rhoai
+# Upstream sample:
+#   https://github.com/rh-aiservices-bu/RHOAI-MaaS-Embedding-Model/blob/main/dsci-metrics-storage-patch.yaml
+spec:
+  monitoring:
+    managementState: Managed
+    namespace: redhat-ods-monitoring
+    metrics:
+      storage:
+        retention: 15d
+        size: 5Gi

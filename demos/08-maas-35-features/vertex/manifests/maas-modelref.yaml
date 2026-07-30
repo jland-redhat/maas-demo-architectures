@@ -1,0 +1,14 @@
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: vertex-claude-opus-4-8
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "Claude Opus 4.8 (Vertex AI)"
+spec:
+  modelRef:
+    kind: ExternalModel
+    name: vertex-claude-opus-4-8

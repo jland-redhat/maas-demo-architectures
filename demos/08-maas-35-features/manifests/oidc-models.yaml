@@ -1,0 +1,195 @@
+# Demo 08 — OIDC tenant models (llm-oidc). Gateway ref: oidc (openshift-ingress).
+# Groups on entitlements match upstream Keycloak test realm tenant-a (Engineering, Project-Alpha).
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: llm-oidc
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+    maas.demo/tenant: oidc
+    istio-injection: enabled
+---
+apiVersion: serving.kserve.io/v1alpha1
+kind: LLMInferenceService
+metadata:
+  name: oidc-qwen-2-5-7b
+  namespace: llm-oidc
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+    maas.demo/tenant: oidc
+    maas.demo/model-family: qwen
+  annotations:
+    openshift.io/display-name: "Qwen 2.5 7B Instruct (simulated)"
+spec:
+  model:
+    uri: hf://sshleifer/tiny-gpt2
+    name: Qwen/Qwen2.5-7B-Instruct
+  replicas: 1
+  router:
+    route: {}
+    gateway:
+      refs:
+        - name: oidc
+          namespace: openshift-ingress
+  template:
+    containers:
+      - name: main
+        image: ghcr.io/llm-d/llm-d-inference-sim:v0.10.2
+        imagePullPolicy: Always
+        command: ["/app/llm-d-inference-sim"]
+        args:
+          - --port
+          - "8000"
+          - --model
+          - Qwen/Qwen2.5-7B-Instruct
+          - --mode
+          - random
+          - --max-model-len
+          - "32768"
+          - --log-http
+          - --force-dummy-tokenizer
+          - --ssl-certfile
+          - /var/run/kserve/tls/tls.crt
+          - --ssl-keyfile
+          - /var/run/kserve/tls/tls.key
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+        ports:
+          - name: https
+            containerPort: 8000
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: https
+            scheme: HTTPS
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: https
+            scheme: HTTPS
+---
+apiVersion: serving.kserve.io/v1alpha1
+kind: LLMInferenceService
+metadata:
+  name: oidc-gpt-oss-20b
+  namespace: llm-oidc
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+    maas.demo/tenant: oidc
+    maas.demo/model-family: gpt
+  annotations:
+    openshift.io/display-name: "GPT-OSS 20B (simulated)"
+spec:
+  model:
+    uri: hf://sshleifer/tiny-gpt2
+    name: openai/gpt-oss-20b
+  replicas: 1
+  router:
+    route: {}
+    gateway:
+      refs:
+        - name: oidc
+          namespace: openshift-ingress
+  template:
+    containers:
+      - name: main
+        image: ghcr.io/llm-d/llm-d-inference-sim:v0.10.2
+        imagePullPolicy: Always
+        command: ["/app/llm-d-inference-sim"]
+        args:
+          - --port
+          - "8000"
+          - --model
+          - openai/gpt-oss-20b
+          - --mode
+          - random
+          - --max-model-len
+          - "32768"
+          - --log-http
+          - --force-dummy-tokenizer
+          - --ssl-certfile
+          - /var/run/kserve/tls/tls.crt
+          - --ssl-keyfile
+          - /var/run/kserve/tls/tls.key
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+        ports:
+          - name: https
+            containerPort: 8000
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: https
+            scheme: HTTPS
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: https
+            scheme: HTTPS
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: oidc-qwen-2-5-7b
+  namespace: llm-oidc
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+    maas.demo/tenant: oidc
+  annotations:
+    openshift.io/display-name: "Qwen 2.5 7B Instruct"
+spec:
+  tenantRef: oidc
+  modelRef:
+    kind: LLMInferenceService
+    name: oidc-qwen-2-5-7b
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: oidc-gpt-oss-20b
+  namespace: llm-oidc
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+    maas.demo/tenant: oidc
+  annotations:
+    openshift.io/display-name: "GPT-OSS 20B"
+spec:
+  tenantRef: oidc
+  modelRef:
+    kind: LLMInferenceService
+    name: oidc-gpt-oss-20b

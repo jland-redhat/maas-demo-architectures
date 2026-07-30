@@ -11,6 +11,7 @@ metadata:
 spec:
   owner:
     groups:
+      - name: maas-admin
       - name: maas-demo-apps
       - name: maas-demo-research
       - name: maas-demo-restricted
@@ -62,6 +63,7 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-research
     users: []
   meteringMetadata:
@@ -86,6 +88,7 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-apps
     users: []
   meteringMetadata:
@@ -106,6 +109,7 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-restricted
     users: []
   meteringMetadata:

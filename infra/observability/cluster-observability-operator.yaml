@@ -1,0 +1,34 @@
+---
+# Cluster Observability Operator (COO) — MonitoringStack / Perses CRDs.
+# MUST install into openshift-cluster-observability-operator (not openshift-operators)
+# so Perses NetworkPolicy allows dashboard registration.
+#
+# Source pattern:
+#   https://github.com/rh-aiservices-bu/RHOAI-MaaS-Embedding-Model/blob/main/cluster-observability-operator.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-cluster-observability-operator
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: openshift-cluster-observability-operator
+  namespace: openshift-cluster-observability-operator
+spec: {}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: cluster-observability-operator
+  namespace: openshift-cluster-observability-operator
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+spec:
+  channel: stable
+  name: cluster-observability-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic

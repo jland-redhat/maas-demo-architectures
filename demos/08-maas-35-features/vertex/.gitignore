@@ -1,0 +1,4 @@
+# GCP service-account key — never commit
+vertex.json
+*.json
+!vertex.json.example

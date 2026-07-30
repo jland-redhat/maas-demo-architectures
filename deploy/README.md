@@ -2,7 +2,7 @@
 
 This repo installs **simulated** inference workloads (same pattern as [upstream samples](https://github.com/opendatahub-io/models-as-a-service/tree/main/docs/samples/models/simulator)): five `LLMInferenceService` objects using `ghcr.io/llm-d/llm-d-inference-sim`, plus matching **`MaaSModelRef`**, OpenShift **`Group`**, and your chosen demo’s **`MaaSSubscription` / `MaaSAuthPolicy`**.
 
-**Prerequisite:** [models-as-a-service](https://github.com/opendatahub-io/models-as-a-service/) is installed on OpenShift (Gateway `maas-default-gateway` in `openshift-ingress`, KServe, MaaS operator, etc.).
+**Prerequisite:** [models-as-a-service](https://github.com/opendatahub-io/models-as-a-service/) is installed on OpenShift (Gateway `maas-default-gateway` in `openshift-ingress`, KServe, MaaS operator, etc.). For lab infra (Kuadrant CR, gateway TLS, Authorino TLS, PostgreSQL / **`maas-db-config`**), see [infra/README.md](../infra/README.md) (`./infra/scripts/install-infra.sh`).
 
 ## One command (default: Demo 01 entitlements)
 
@@ -24,7 +24,7 @@ To switch the default bundle, edit the root `kustomization.yaml` and change the 
 oc kustomize --load-restrictor LoadRestrictionsNone deploy/overlays/demo02 | oc apply -f -
 ```
 
-Replace `demo02` with `demo01` … `demo06` or use `models-only` (no `MaaS*` entitlements — only base).
+Replace `demo02` with `demo01` … `demo08` or use `models-only` (no `MaaS*` entitlements — only base).
 
 **Models-only** (no subscriptions/policies):
 
@@ -38,11 +38,11 @@ oc kustomize deploy/overlays/models-only | oc apply -f -
 
 | Layer | Location |
 |--------|----------|
-| Namespaces `llm`, `models-as-a-service` | `deploy/base/namespaces.yaml` |
+| Namespaces `llm`, `models-as-a-service`, `ai-tenants` | `deploy/base/namespaces.yaml` |
 | OpenShift `Group` objects | `deploy/base/groups.yaml` (keep in sync with `shared/identity/common-openshift-groups.yaml`) |
 | Five `LLMInferenceService` simulators | `deploy/base/inference/simulators.yaml` |
-| Five `MaaSModelRef` | `deploy/base/maas-modelrefs/modelrefs.yaml` |
-| Entitlements | `demos/<demo>/manifests/maas-entitlements.yaml` |
+| Five `MaaSModelRef` (on-cluster) | `deploy/base/maas-modelrefs/modelrefs.yaml` |
+| Entitlements (+ Demo 08 external model) | `demos/<demo>/manifests/` |
 
 ## Demo token limits (`tokenRateLimits`)
 
@@ -98,3 +98,23 @@ oc get maassubscription,maasauthpolicy -n models-as-a-service
 ```
 
 Wait until `MaaSModelRef` **phase** is `Ready` and pods in `llm` are running before calling the MaaS API.
+
+## MaaS platform notes (v0.1.2+ / RHOAI · ODH 3.5+)
+
+| Topic | What to expect |
+|-------|----------------|
+| **CRD version** | `maas.opendatahub.io/v1alpha1` (`ExternalModel` same group; optional `inference.opendatahub.io` ExternalProvider path in newer IPP flows) |
+| **Quota** | Inline **`tokenRateLimits`** on each `modelRefs[]` entry in `MaaSSubscription` |
+| **Tenant namespace** | Apply subscriptions/policies in a namespace with **`MaasTenantConfig`** (default: `models-as-a-service`). Do **not** put them in `llm`. |
+| **Platform tenancy** | **`AITenant`** in `ai-tenants`; additional tenants → `ai-tenant-{name}` + dedicated Gateway |
+| **API keys** | `POST ${MAAS_API_URL}/maas-api/v1/api-keys` with OpenShift bearer token; optional **`subscription`** field binds the key to one `MaaSSubscription` |
+| **Gateway auth** | Controller manages **`AuthPolicy/maas-gateway-auth`** in `openshift-ingress`; per-model gateway policies in `llm` are not used |
+| **Inference (BBR)** | Prefer `POST ${MAAS_API_URL}/v1/chat/completions` with `model` in the body (IPP). Path-based `${MODEL_URL}/v1/chat/completions` still works. |
+| **External models** | `ExternalModel` + `MaaSModelRef` in `llm`; provider Secret labeled `inference.llm-d.ai/ipp-managed=true` — see [Demo 08](../demos/08-maas-35-features/) |
+| **Overlapping subscriptions** | Demo 02 owners on Gold+Silver+Bronze — mint keys with explicit **`subscription`** or pass **`X-MaaS-Subscription`** on inference when needed |
+
+MaaS API URL pattern: `https://maas.${CLUSTER_DOMAIN}/maas-api/v1/...` (see upstream [Inference](https://github.com/opendatahub-io/models-as-a-service/blob/main/docs/content/user-guide/inference.md) guide).
+
+**Agent demo:** overlay **`demo07`** + [demos/07-openclaw-agent/README.md](../demos/07-openclaw-agent/README.md) wires OpenClaw to MaaS with a **bob** API key (prefer BBR `base_url`).
+
+**3.5 feature demo:** [demos/08-maas-35-features/](../demos/08-maas-35-features/) — default + partner tenants via [apply-partner-tenant.sh](../demos/08-maas-35-features/scripts/apply-partner-tenant.sh), plus **External OIDC** tenant via [apply-oidc-tenant.sh](../demos/08-maas-35-features/scripts/apply-oidc-tenant.sh) (calls upstream Keycloak samples from a `MAAS_REPO` checkout).

@@ -23,7 +23,7 @@ All three are **owners** on the same **`MaaSSubscription`** (shared quota envelo
 | User | `Group` users in `manifests/required-groups.yaml` |
 |------|---------------------------------------------------|
 | **alice** | `maas-demo-research` |
-| **bob** | `maas-demo-research`, `maas-demo-apps` |
+| **bob** | `maas-demo-apps` |
 | **chloe** | `maas-demo-restricted` |
 
 See [demos/README.md — Full lab identity](../README.md#full-lab-identity-openshift-groups) for the full four-user matrix.

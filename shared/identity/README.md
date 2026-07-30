@@ -17,12 +17,17 @@ The full membership table lives in [demos/README.md — Full lab identity](../..
 
 | Group | Typical use in demos |
 |--------|----------------------|
-| `maas-demo-admins` | Operators (`dana`) |
+| **`maas-admin`** | **Presenter break-glass** — on every subscription + auth policy; defaults include common lab admins (`htpasswd-cluster-admin-user`, `kubeadmin`, `cluster-admin`, `admin`) |
+| `maas-demo-admins` | Story persona operators (`dana`) — Demo 03 admin slice |
 | `maas-demo-research` | R&D (`alice`) |
 | `maas-demo-apps` | App teams (`alice`, `bob`) |
 | `maas-demo-restricted` | Tight access (`chloe`) |
 | `maas-demo-org` | Broad org membership (`alice`, `bob`, `chloe`) for [Demo 03](../../demos/03-org-catalog/) |
 | `maas-demo-line-*` | One group per **subscription+policy pair** in [Demo 01](../../demos/01-one-to-one/) (here one model per pair) |
+
+```bash
+oc adm groups add-users maas-admin $(oc whoami)
+```
 
 Apply `common-openshift-groups.yaml` after users exist in your IdP.
 

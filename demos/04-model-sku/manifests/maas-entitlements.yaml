@@ -10,6 +10,7 @@ metadata:
 spec:
   owner:
     groups:
+      - name: maas-admin
       - name: maas-demo-research
     users: []
   modelRefs:
@@ -30,6 +31,7 @@ metadata:
 spec:
   owner:
     groups:
+      - name: maas-admin
       - name: maas-demo-research
     users: []
   modelRefs:
@@ -50,6 +52,7 @@ metadata:
 spec:
   owner:
     groups:
+      - name: maas-admin
       - name: maas-demo-research
     users: []
   modelRefs:
@@ -70,6 +73,7 @@ metadata:
 spec:
   owner:
     groups:
+      - name: maas-admin
       - name: maas-demo-research
     users: []
   modelRefs:
@@ -90,6 +94,7 @@ metadata:
 spec:
   owner:
     groups:
+      - name: maas-admin
       - name: maas-demo-research
     users: []
   modelRefs:
@@ -111,6 +116,7 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-research
     users: []
 ---
@@ -125,6 +131,7 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-research
     users: []
 ---
@@ -139,6 +146,7 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-research
     users: []
 ---
@@ -153,6 +161,7 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-research
     users: []
 ---
@@ -167,5 +176,6 @@ spec:
       namespace: llm
   subjects:
     groups:
+      - name: maas-admin
       - name: maas-demo-research
     users: []

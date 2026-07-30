@@ -1,0 +1,109 @@
+# Demo 08 — on-cluster streaming simulator (SSE tokens paced by ITL).
+#
+# Mode: random — synthesizes text and honors max_tokens / ignore_eos
+#   (unlike echo, which only mirrors the last user message and ignores max_tokens).
+# Docs:
+#   https://github.com/llm-d/llm-d-inference-sim/blob/main/docs/response_generation.md
+#   https://github.com/llm-d/llm-d-inference-sim/blob/main/docs/latency-simulation.md
+#
+# Latency (constant calculator):
+#   decode_time ≈ (output_tokens − 1) × inter-token-latency
+# Without ignore_eos, random mode samples a *histogram* of lengths under max_tokens
+# (often short). Use ignore_eos=true to force exactly max_tokens and see ITL clearly.
+---
+apiVersion: serving.kserve.io/v1alpha1
+kind: LLMInferenceService
+metadata:
+  name: sim-stream
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+    maas.demo/model-family: stream
+  annotations:
+    openshift.io/display-name: "Streaming sim (50ms/token, random)"
+spec:
+  model:
+    uri: hf://sshleifer/tiny-gpt2
+    name: demo/sim-stream
+  replicas: 1
+  router:
+    route: {}
+    gateway:
+      refs:
+        - name: maas-default-gateway
+          namespace: openshift-ingress
+  template:
+    containers:
+      - name: main
+        image: ghcr.io/llm-d/llm-d-inference-sim:v0.10.2
+        imagePullPolicy: Always
+        command: ["/app/llm-d-inference-sim"]
+        args:
+          - --port
+          - "8000"
+          - --model
+          - demo/sim-stream
+          # random: build synthetic text up to target length (respects max_tokens).
+          - --mode
+          - random
+          - --max-model-len
+          - "32768"
+          - --latency-calculator
+          - constant
+          # Visible paced SSE: ~100ms TTFT, then ~50ms between tokens.
+          - --time-to-first-token
+          - 100ms
+          - --inter-token-latency
+          - 50ms
+          - --log-http
+          - --force-dummy-tokenizer
+          - --ssl-certfile
+          - /var/run/kserve/tls/tls.crt
+          - --ssl-keyfile
+          - /var/run/kserve/tls/tls.key
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+        ports:
+          - name: https
+            containerPort: 8000
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: https
+            scheme: HTTPS
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: https
+            scheme: HTTPS
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: sim-stream
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "Streaming sim (50ms/token, random)"
+spec:
+  modelRef:
+    kind: LLMInferenceService
+    name: sim-stream

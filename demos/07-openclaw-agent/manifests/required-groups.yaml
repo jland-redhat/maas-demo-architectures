@@ -1,0 +1,10 @@
+# OpenShift Groups required for Demo 07 (OpenClaw agent via MaaS — Llama for apps team).
+# Keep membership in sync with shared/identity/common-openshift-groups.yaml.
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-apps
+users:
+  - alice
+  - bob

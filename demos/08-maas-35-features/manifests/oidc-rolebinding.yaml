@@ -1,0 +1,18 @@
+# Grant Keycloak-aligned OpenShift Group names optional cluster RBAC for the OIDC tenant.
+# Auth for minting keys uses OIDC JWTs (groups claim); this RoleBinding is for kubectl admins only.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: demo08-oidc-tenant-admin
+  namespace: ai-tenant-oidc
+  labels:
+    maas.demo/tenant: oidc
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: aitenant-oidc-tenant-admin
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: Engineering

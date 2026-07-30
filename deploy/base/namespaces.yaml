@@ -12,3 +12,11 @@ metadata:
   name: models-as-a-service
   labels:
     app.kubernetes.io/part-of: maas-demo-architectures
+---
+# AITenant registry (controller usually creates this; safe no-op if already present)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-tenants
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures

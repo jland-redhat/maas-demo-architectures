@@ -25,7 +25,7 @@ You sell **three commercial tiers** — **Gold**, **Silver**, **Bronze**. Each t
 | User | `Group` users in `manifests/required-groups.yaml` |
 |------|---------------------------------------------------|
 | **alice** | `maas-demo-research` |
-| **bob** | `maas-demo-research`, `maas-demo-apps` |
+| **bob** | `maas-demo-apps` |
 | **chloe** | `maas-demo-restricted` |
 
 For a **combined** lab identity (line-item groups, org, admins, …), see [demos/README.md — Full lab identity](../README.md#full-lab-identity-openshift-groups).
@@ -106,6 +106,15 @@ flowchart LR
 | `demo02-restricted-slice` | `maas-demo-restricted` | Llama |
 
 **Note:** `maas-demo-restricted` is **not** on Gold or Silver—only **Bronze**—so **`chloe`** is the user who **only** has bottom-tier subscription ownership (in addition to alice/bob on all three tiers).
+
+## Overlapping tier subscriptions (API keys)
+
+**alice** and **bob** are owners on **Gold, Silver, and Bronze** at once. For a given model, the gateway may see **multiple** matching subscriptions unless you pin one:
+
+1. **Mint time:** pass **`"subscription": "demo02-tier-gold"`** (or silver/bronze) on `POST /v1/api-keys`.
+2. **Inference:** use a key already bound to the desired subscription, or **`X-MaaS-Subscription`** where your client supports it.
+
+Without that, auto-selection uses **`spec.priority`** (highest first), then limit, then name. **chloe** (Bronze only) avoids this ambiguity.
 
 ## Required groups
 

@@ -164,7 +164,7 @@ oc apply -f demos/01-one-to-one/manifests/maas-entitlements.yaml
 oc apply -f demos/01-one-to-one/manifests/maas-entitlements.yaml
 ```
 
-See upstream [model-setup](https://github.com/opendatahub-io/models-as-a-service/blob/main/docs/content/install/model-setup.md) for how these objects interact with the MaaS operator.
+See upstream [model-setup](https://github.com/opendatahub-io/models-as-a-service/blob/main/docs/content/install/model-setup.md) for how these objects interact with the MaaS operator. Entitlements stay in **`models-as-a-service`** (`MaasTenantConfig`); models stay in **`llm`**. For body-based routing and external models, see [Demo 08](../08-maas-35-features/).
 
 ## Files
 

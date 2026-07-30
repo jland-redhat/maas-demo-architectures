@@ -19,7 +19,7 @@ Same **`manifests/required-groups.yaml`** as Demo 05:
 | User | `Group` users |
 |------|---------------|
 | **alice** | `maas-demo-research` |
-| **bob** | `maas-demo-research`, `maas-demo-apps` |
+| **bob** | `maas-demo-apps` |
 | **chloe** | `maas-demo-restricted` |
 
 See [demos/README.md — Full lab identity](../README.md#full-lab-identity-openshift-groups) for the full lab matrix.

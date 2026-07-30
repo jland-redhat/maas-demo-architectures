@@ -1,0 +1,18 @@
+# OpenShift Groups required for Demo 08.
+# Default tenant: research (alice). Partner tenant: apps (bob).
+# Keep membership in sync with shared/identity/common-openshift-groups.yaml.
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-research
+users:
+  - alice
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-apps
+users:
+  - alice
+  - bob

@@ -1,0 +1,162 @@
+# Demo 08 — External models via the shared llm-katan simulator (not live OpenAI).
+# Values from:
+#   https://github.com/noyitz/ai-gateway-payload-processing/blob/424b5754c40ef3daca6874ad0b4bd7755a9d23f3/docs/testing-with-simulator.md
+#
+# Uses inference.opendatahub.io ExternalProvider + ExternalModel (IPP-managed),
+# plus MaaSModelRef for catalog / entitlements.
+#
+# Simulator host: 3-132-132-211.sslip.io
+# Provider keys are fixed lab strings (llm-katan-*-key), not real cloud credentials.
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sim-openai-key
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+    inference.llm-d.ai/ipp-managed: "true"
+type: Opaque
+stringData:
+  api-key: "llm-katan-openai-key"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sim-anthropic-key
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+    inference.llm-d.ai/ipp-managed: "true"
+type: Opaque
+stringData:
+  api-key: "llm-katan-anthropic-key"
+---
+apiVersion: inference.opendatahub.io/v1alpha1
+kind: ExternalProvider
+metadata:
+  name: sim-openai
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+spec:
+  provider: openai
+  endpoint: 3-132-132-211.sslip.io
+  auth:
+    type: simple
+    secretRef:
+      name: sim-openai-key
+---
+apiVersion: inference.opendatahub.io/v1alpha1
+kind: ExternalProvider
+metadata:
+  name: sim-anthropic
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+spec:
+  provider: anthropic
+  endpoint: 3-132-132-211.sslip.io
+  auth:
+    type: simple
+    secretRef:
+      name: sim-anthropic-key
+---
+# OpenAI Chat Completions format → /v1/chat/completions
+apiVersion: inference.opendatahub.io/v1alpha1
+kind: ExternalModel
+metadata:
+  name: sim-chat
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "External chat (llm-katan / OpenAI format)"
+spec:
+  externalProviderRefs:
+    - ref:
+        name: sim-openai
+      targetModel: sim-chat
+      apiFormat: openai-chat
+      path: /v1/chat/completions
+      weight: 100
+---
+# Second OpenAI-format model (multi-model / BBR switching)
+apiVersion: inference.opendatahub.io/v1alpha1
+kind: ExternalModel
+metadata:
+  name: sim-chat-2
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "External chat 2 (llm-katan / OpenAI format)"
+spec:
+  externalProviderRefs:
+    - ref:
+        name: sim-openai
+      targetModel: sim-chat-2
+      apiFormat: openai-chat
+      path: /v1/chat/completions
+      weight: 100
+---
+# Anthropic Messages format → /v1/messages
+apiVersion: inference.opendatahub.io/v1alpha1
+kind: ExternalModel
+metadata:
+  name: sim-messages
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "External messages (llm-katan / Anthropic format)"
+spec:
+  externalProviderRefs:
+    - ref:
+        name: sim-anthropic
+      targetModel: sim-messages
+      apiFormat: messages
+      path: /v1/messages
+      weight: 100
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: sim-chat
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "External chat (llm-katan)"
+spec:
+  modelRef:
+    kind: ExternalModel
+    name: sim-chat
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: sim-chat-2
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "External chat 2 (llm-katan)"
+spec:
+  modelRef:
+    kind: ExternalModel
+    name: sim-chat-2
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: sim-messages
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "External messages (llm-katan)"
+spec:
+  modelRef:
+    kind: ExternalModel
+    name: sim-messages

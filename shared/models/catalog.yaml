@@ -3,24 +3,75 @@
 # names with your own models. Display names are for annotations only.
 #
 # Upstream samples: https://github.com/opendatahub-io/models-as-a-service/tree/main/docs/samples
+# External backends (Demo 08): ExternalModel + MaaSModelRef kind ExternalModel — see
+# https://github.com/opendatahub-io/models-as-a-service/blob/main/docs/content/install/external-model-setup.md
+
+# contextWindow here is catalog documentation only (simulator --max-model-len).
+# Do not mirror it as opendatahub.io/context-window on MaaSModelRef — that breaks
+# Gen AI Studio AI Assets (string vs int unmarshalling in the Gen AI BFF).
 
 models:
   - maasModelRefName: granite-3-8b-instruct
     displayName: IBM Granite 3.8B Instruct
+    contextWindow: 32768
     notes: "Representative Granite-class deployment."
 
   - maasModelRefName: llama-3-1-8b-instruct
     displayName: Meta Llama 3.1 8B Instruct
+    contextWindow: 32768
     notes: "Llama-family mid-size instruct model."
 
   - maasModelRefName: mistral-7b-instruct-v03
     displayName: Mistral 7B Instruct v0.3
+    contextWindow: 32768
     notes: "Short name segment for Kubernetes (no slashes in metadata.name)."
 
   - maasModelRefName: qwen2-5-7b-instruct
     displayName: Qwen 2.5 7B Instruct
+    contextWindow: 32768
     notes: "Multilingual-friendly instruct model."
 
   - maasModelRefName: gpt-oss-20b-sample
     displayName: GPT-OSS 20B (sample)
+    contextWindow: 32768
     notes: "Placeholder for an OSS stack in the GPT weight class; rename to match your serving name."
+
+  - maasModelRefName: sim-chat
+    displayName: External chat (llm-katan)
+    contextWindow: 32768
+    notes: "Demo 08 llm-katan OpenAI-format ExternalModel; host 3-132-132-211.sslip.io."
+
+  - maasModelRefName: sim-chat-2
+    displayName: External chat 2 (llm-katan)
+    contextWindow: 32768
+    notes: "Second OpenAI-format external sim for multi-model BBR demos."
+
+  - maasModelRefName: sim-messages
+    displayName: External messages (llm-katan)
+    contextWindow: 32768
+    notes: "Anthropic Messages-format ExternalModel via llm-katan."
+
+  - maasModelRefName: sim-stream
+    displayName: Streaming sim (50ms/token)
+    contextWindow: 32768
+    notes: "Demo 08 on-cluster llm-d-inference-sim with --inter-token-latency 50ms (SSE)."
+
+  - maasModelRefName: partner-mistral-7b
+    displayName: Mistral 7B Instruct
+    contextWindow: 32768
+    notes: "Partner tenant simulator in namespace llm-partner."
+
+  - maasModelRefName: partner-llama-3-1-8b
+    displayName: Llama 3.1 8B Instruct
+    contextWindow: 32768
+    notes: "Partner tenant simulator in namespace llm-partner."
+
+  - maasModelRefName: oidc-qwen-2-5-7b
+    displayName: Qwen 2.5 7B Instruct
+    contextWindow: 32768
+    notes: "OIDC tenant; Keycloak realm tenant-a groups Engineering/Project-Alpha."
+
+  - maasModelRefName: oidc-gpt-oss-20b
+    displayName: GPT-OSS 20B
+    contextWindow: 32768
+    notes: "OIDC tenant simulator in namespace llm-oidc."
