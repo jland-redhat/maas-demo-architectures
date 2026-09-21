@@ -41,6 +41,16 @@ spec:
       tokenRateLimits:
         - limit: 200
           window: 1m
+    - name: openai.gpt-oss-20b
+      namespace: llm
+      tokenRateLimits:
+        - limit: 200
+          window: 1m
+    - name: vendor-model
+      namespace: llm
+      tokenRateLimits:
+        - limit: 200
+          window: 1m
   priority: 40
 ---
 apiVersion: maas.opendatahub.io/v1alpha1
@@ -61,6 +71,10 @@ spec:
     - name: sim-messages
       namespace: llm
     - name: sim-stream
+      namespace: llm
+    - name: openai.gpt-oss-20b
+      namespace: llm
+    - name: vendor-model
       namespace: llm
   subjects:
     groups:

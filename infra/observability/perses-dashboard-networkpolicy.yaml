@@ -1,0 +1,42 @@
+# Allow RHOAI/ODH dashboard (and OpenShift console) to reach Perses.
+#
+# Default Perses NetworkPolicy (perses-operator-access) only permits the
+# perses-operator in openshift-cluster-observability-operator. Without this,
+# dashboard → Perses calls time out and the UI shows:
+#   Unexpected token '<', "<!doctype "... is not valid JSON
+# (HTML error/login page parsed as JSON).
+#
+# MONITORING_NS is substituted by setup-observability.sh (redhat-ods-monitoring
+# or opendatahub).
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: perses-dashboard-access
+  namespace: ${MONITORING_NS}
+  labels:
+    app.kubernetes.io/name: perses-dashboard-access
+    app.kubernetes.io/part-of: maas-demo-architectures
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: perses-operator
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: redhat-ods-applications
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: opendatahub
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-console
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-ingress
+      ports:
+        - protocol: TCP
+          port: 8080

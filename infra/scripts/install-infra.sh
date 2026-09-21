@@ -76,6 +76,11 @@ if [[ "${SKIP_GATEWAY}" != "1" ]]; then
     run_step "2/5 Gateway (local setup-gateway.sh)" \
       env INGRESS_MODE="${INGRESS_MODE:-route}" "${SCRIPT_DIR}/setup-gateway.sh"
   fi
+  # Upstream setup-gateway also needs this if AIGateway narrowed allowedRoutes.
+  if [[ -x "${SCRIPT_DIR}/ensure-gateway-allowed-routes.sh" ]]; then
+    run_step "2b/5 Gateway allowedRoutes from All" \
+      "${SCRIPT_DIR}/ensure-gateway-allowed-routes.sh" maas-default-gateway
+  fi
 else
   echo "Skipping Gateway (SKIP_GATEWAY=1)"
 fi

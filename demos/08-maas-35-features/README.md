@@ -126,6 +126,14 @@ flowchart TB
 ./demos/08-maas-35-features/scripts/apply-default-tenant.sh
 ```
 
+The apply scripts call [`ensure-gateway-allowed-routes.sh`](../../infra/scripts/ensure-gateway-allowed-routes.sh) so `maas-default-gateway` keeps `allowedRoutes.from: All`. Without that, AIGateway can narrow the Gateway to platform namespaces and model HTTPRoutes in `llm` stay `NotAllowedByListeners` (`BackendNotReady`). Re-run anytime:
+
+```bash
+./infra/scripts/ensure-gateway-allowed-routes.sh maas-default-gateway
+# or: partner oidc
+./infra/scripts/ensure-gateway-allowed-routes.sh maas-default-gateway partner oidc
+```
+
 ### Default + partner
 
 ```bash

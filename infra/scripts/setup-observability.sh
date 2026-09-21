@@ -8,10 +8,15 @@
 #
 # Steps:
 #   1. Install Cluster Observability Operator (COO) + OpenTelemetry Operator
-#   2. Patch DSCInitialization metrics.storage
-#   3. Enable User Workload Monitoring (safe merge)
-#   4. Enable Kuadrant observability (limitador metrics)
-#   5. Enable observabilityDashboard on OdhDashboardConfig
+#   2. Repair stuck OpenTelemetry CSV when CRDs are missing
+#   3. Patch DSCInitialization metrics.storage
+#   4. Enable User Workload Monitoring (safe merge)
+#   5. Enable Kuadrant observability (limitador metrics)
+#   6. Enable observabilityDashboard on OdhDashboardConfig
+#   7. Perses NetworkPolicy so the AI Dashboard can reach Perses
+#
+# Perses TLS / operator-skew workarounds are NOT applied here — see
+#   infra/hacks/perses-tls-skew.hack.sh
 #
 # Usage (from repo root):
 #   ./infra/scripts/setup-observability.sh
@@ -43,6 +48,8 @@ SKIP_DASHBOARD_FLAG="${SKIP_DASHBOARD_FLAG:-0}"
 METRICS_SIZE="${METRICS_SIZE:-5Gi}"
 METRICS_RETENTION="${METRICS_RETENTION:-15d}"
 WAIT_TIMEOUT="${WAIT_TIMEOUT:-600}"
+OTEL_NS="${OTEL_NS:-openshift-operators}"
+COO_NS="${COO_NS:-openshift-cluster-observability-operator}"
 
 log_info()  { echo "ℹ  $*"; }
 log_warn()  { echo "⚠  $*" >&2; }
@@ -108,19 +115,45 @@ wait_for_crd() {
   return 1
 }
 
+repair_opentelemetry_operator() {
+  # OLM can leave the OTEL CSV in Pending/RequirementsNotMet with the controller
+  # Deployment running but CRDs deleted/missing — Monitoring then stays Not Ready
+  # (OpenTelemetryCollectorCRDNotFoundReason) and Perses collectors never appear.
+  if ${OC} get crd opentelemetrycollectors.opentelemetry.io &>/dev/null; then
+    return 0
+  fi
+  log_warn "OpenTelemetryCollector CRD missing — repairing opentelemetry-product Subscription"
+  local csv
+  csv="$(${OC} get sub opentelemetry-product -n "${OTEL_NS}" \
+    -o jsonpath='{.status.currentCSV}' 2>/dev/null || true)"
+  local ip
+  ip="$(${OC} get sub opentelemetry-product -n "${OTEL_NS}" \
+    -o jsonpath='{.status.installPlanRef.name}' 2>/dev/null || true)"
+  [[ -n "${csv}" ]] && ${OC} delete csv "${csv}" -n "${OTEL_NS}" --wait=false 2>/dev/null || true
+  [[ -n "${ip}" ]] && ${OC} delete installplan "${ip}" -n "${OTEL_NS}" --wait=false 2>/dev/null || true
+  ${OC} delete sub opentelemetry-product -n "${OTEL_NS}" --wait=true 2>/dev/null || true
+  ${OC} apply -f "${OBS_DIR}/opentelemetry-operator.yaml"
+}
+
 if [[ "${SKIP_OPERATORS}" != "1" ]]; then
   log_info "Installing Cluster Observability Operator…"
   ${OC} apply -f "${OBS_DIR}/cluster-observability-operator.yaml"
 
   log_info "Installing OpenTelemetry Operator…"
   ${OC} apply -f "${OBS_DIR}/opentelemetry-operator.yaml"
+  repair_opentelemetry_operator
 
   wait_for_crd monitoringstacks.monitoring.rhobs 300 || \
     log_warn "monitoringstacks.monitoring.rhobs CRD not ready yet (COO still installing)"
-  wait_for_crd opentelemetrycollectors.opentelemetry.io 300 || \
-    log_warn "opentelemetrycollectors.opentelemetry.io CRD not ready yet"
+  if ! wait_for_crd opentelemetrycollectors.opentelemetry.io 300; then
+    log_warn "opentelemetrycollectors.opentelemetry.io CRD not ready — retrying OTEL repair"
+    repair_opentelemetry_operator
+    wait_for_crd opentelemetrycollectors.opentelemetry.io 300 || \
+      log_warn "OpenTelemetry CRDs still missing; Monitoring Ready may stay False"
+  fi
 else
   log_info "Skipping operator install (SKIP_OPERATORS=1)"
+  repair_opentelemetry_operator || true
 fi
 
 #── 2. DSCI metrics.storage patch ──────────────────────────────────────────────
@@ -222,7 +255,27 @@ else
   log_info "Skipping dashboard flag (SKIP_DASHBOARD_FLAG=1)"
 fi
 
-#── wait for MonitoringStackAvailable ──────────────────────────────────────────
+#── 6. Perses NetworkPolicy (dashboard → Perses) ───────────────────────────────
+
+apply_perses_dashboard_networkpolicy() {
+  if ! ${OC} get namespace "${MONITORING_NS}" &>/dev/null; then
+    log_warn "Monitoring namespace ${MONITORING_NS} missing — skip Perses NetworkPolicy"
+    return 0
+  fi
+  log_info "Allowing dashboard namespaces to reach Perses (NetworkPolicy)…"
+  if command -v envsubst &>/dev/null; then
+    # shellcheck disable=SC2016
+    MONITORING_NS="${MONITORING_NS}" envsubst '${MONITORING_NS}' \
+      < "${OBS_DIR}/perses-dashboard-networkpolicy.yaml" | ${OC} apply -f -
+  else
+    sed "s|\${MONITORING_NS}|${MONITORING_NS}|g" \
+      "${OBS_DIR}/perses-dashboard-networkpolicy.yaml" | ${OC} apply -f -
+  fi
+}
+
+apply_perses_dashboard_networkpolicy
+
+#── wait for MonitoringStackAvailable + Perses Ready ───────────────────────────
 
 log_info "Waiting for DSCI MonitoringStackAvailable=True (timeout ${WAIT_TIMEOUT}s)…"
 elapsed=0
@@ -246,17 +299,43 @@ if [[ "${status:-}" != "True" ]]; then
   log_warn "MonitoringStackAvailable still not True after ${WAIT_TIMEOUT}s"
   log_warn "  Check: ${OC} get dscinitialization ${DSCI_NAME} -o yaml"
   log_warn "  Check: ${OC} get pods -n ${MONITORING_NS}"
-  log_warn "  COO CSV: ${OC} get csv -n openshift-cluster-observability-operator"
-  log_warn "  OTEL CSV: ${OC} get csv -n openshift-operators | grep opentelemetry"
+  log_warn "  COO CSV: ${OC} get csv -n ${COO_NS}"
+  log_warn "  OTEL CSV: ${OC} get csv -n ${OTEL_NS} | grep opentelemetry"
   exit 1
+fi
+
+# Perses Ready (dashboard backend) — optional wait; TLS skew hacks live under infra/hacks/
+if ${OC} get sts -n "${MONITORING_NS}" 2>/dev/null | grep -qi perses; then
+  log_info "Waiting for Perses pod Ready…"
+  elapsed=0
+  perses_ready=false
+  while (( elapsed < 180 )); do
+    if ${OC} get pods -n "${MONITORING_NS}" -l app.kubernetes.io/name=perses \
+         -o jsonpath='{.items[0].status.containerStatuses[0].ready}' 2>/dev/null | grep -q true; then
+      perses_ready=true
+      echo "✅ Perses Ready"
+      break
+    fi
+    sleep 10
+    elapsed=$((elapsed + 10))
+  done
+  if [[ "${perses_ready}" != "true" ]]; then
+    log_warn "Perses still not Ready — check: ${OC} logs -n ${MONITORING_NS} -l app.kubernetes.io/name=perses --tail=50"
+    log_warn "If logs show unsupported --web.tls-* flags, see infra/hacks/perses-tls-skew.hack.sh (not applied by this install)"
+  fi
 fi
 
 echo ""
 echo "✅ Observability configured for Showback/FinOps"
 echo "  DSCI metrics.storage: ${METRICS_SIZE} / ${METRICS_RETENTION}"
 echo "  Monitoring namespace:  ${MONITORING_NS}"
+echo "  Perses NetworkPolicy:  perses-dashboard-access (dashboard → Perses :8080)"
 echo ""
 echo "Verify:"
 echo "  ${OC} get dscinitialization ${DSCI_NAME} -o jsonpath='{.status.conditions[?(@.type==\"MonitoringStackAvailable\")]}{\"\\n\"}'"
+echo "  ${OC} get monitoring -A"
 echo "  ${OC} get monitoringstack -A"
 echo "  ${OC} get pods -n ${MONITORING_NS}"
+echo "  ${OC} get networkpolicy perses-dashboard-access -n ${MONITORING_NS}"
+echo "  ${OC} get csv -n ${OTEL_NS} | grep opentelemetry"
+echo "  ${OC} get crd opentelemetrycollectors.opentelemetry.io"

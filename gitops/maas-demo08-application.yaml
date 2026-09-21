@@ -1,0 +1,43 @@
+# Argo CD Application for Demo 08 (default tenant models + entitlements).
+# Requires OpenShift GitOps with:
+#   spec.kustomizeBuildOptions: --load-restrictor LoadRestrictionsNone
+# (overlay references ../../../demos/... outside deploy/overlays/demo08).
+#
+# Apply:
+#   oc apply -f gitops/maas-demo08-application.yaml
+#   oc -n openshift-gitops wait --for=jsonpath='{.status.sync.status}'=Synced application/maas-demo08 --timeout=5m
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: maas-demo08
+  namespace: openshift-gitops
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/cascade
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/jland-redhat/maas-demo-architectures.git
+    targetRevision: main
+    path: deploy/overlays/demo08
+  destination:
+    server: https://kubernetes.default.svc
+    # Namespaced manifests set their own namespaces; this is the fallback.
+    namespace: llm
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

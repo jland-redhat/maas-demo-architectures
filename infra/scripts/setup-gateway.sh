@@ -305,6 +305,13 @@ case "${INGRESS_MODE}" in
   clusterip) apply_clusterip_gateway ;;
 esac
 
+# AIGateway may narrow allowedRoutes after apply; re-assert from All for model ns routes.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -x "${SCRIPT_DIR}/ensure-gateway-allowed-routes.sh" ]]; then
+  GATEWAY_NAMESPACE="${GATEWAY_NAMESPACE}" \
+    "${SCRIPT_DIR}/ensure-gateway-allowed-routes.sh" "${GATEWAY_NAME}"
+fi
+
 echo ""
 echo "✅ Gateway setup finished"
 echo "  Name:     ${GATEWAY_NAMESPACE}/${GATEWAY_NAME}"

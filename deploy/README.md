@@ -99,6 +99,17 @@ oc get maassubscription,maasauthpolicy -n models-as-a-service
 
 Wait until `MaaSModelRef` **phase** is `Ready` and pods in `llm` are running before calling the MaaS API.
 
+### Generate traffic (observability)
+
+Hit models through MaaS gateways (BBR). Discovers IDs from `/maas-api/v1/models` and mints a key per gateway when needed:
+
+```bash
+./scripts/generate-traffic.sh                         # maas + partner-maas
+./scripts/generate-traffic.sh --requests 10
+./scripts/generate-traffic.sh --gateways maas --models granite,sim-chat
+./scripts/generate-traffic.sh --direct                # optional: in-cluster workload Services
+```
+
 ## MaaS platform notes (v0.1.2+ / RHOAI · ODH 3.5+)
 
 | Topic | What to expect |

@@ -194,6 +194,11 @@ for _ in $(seq 1 30); do
   sleep 2
 done
 
+if [[ -x "${REPO_ROOT}/infra/scripts/ensure-gateway-allowed-routes.sh" ]]; then
+  echo "Ensuring oidc (+ default) gateways allow HTTPRoutes from All namespaces…"
+  "${REPO_ROOT}/infra/scripts/ensure-gateway-allowed-routes.sh" maas-default-gateway "${TENANT_NAME}"
+fi
+
 GATEWAY_SERVICE_NAME="${TENANT_NAME}-openshift-default"
 oc apply -f - <<EOF
 apiVersion: route.openshift.io/v1
@@ -253,6 +258,12 @@ for _ in $(seq 1 60); do
   fi
   sleep 3
 done
+
+REPO_ROOT="$(cd "${DEMO_DIR}/../.." && pwd)"
+if [[ -x "${REPO_ROOT}/infra/scripts/ensure-maasmodelref-tenantref.sh" ]]; then
+  echo "Ensuring MaaSModelRef CRD accepts spec.tenantRef…"
+  "${REPO_ROOT}/infra/scripts/ensure-maasmodelref-tenantref.sh"
+fi
 
 echo "Applying OIDC tenant models + entitlements…"
 oc apply -f "${DEMO_DIR}/manifests/oidc-models.yaml"

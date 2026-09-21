@@ -29,6 +29,12 @@ if ! command -v oc >/dev/null 2>&1; then
   exit 1
 fi
 
+# AIGateway can narrow maas-default-gateway allowedRoutes and block llm HTTPRoutes.
+if [[ -x "${REPO_ROOT}/infra/scripts/ensure-gateway-allowed-routes.sh" ]]; then
+  echo "Ensuring maas-default-gateway allows HTTPRoutes from All namespaces…"
+  "${REPO_ROOT}/infra/scripts/ensure-gateway-allowed-routes.sh" maas-default-gateway
+fi
+
 echo "Applying Demo 08 default-tenant overlay (deploy/overlays/demo08)…"
 oc kustomize --load-restrictor LoadRestrictionsNone "${REPO_ROOT}/deploy/overlays/demo08" | oc apply -f -
 

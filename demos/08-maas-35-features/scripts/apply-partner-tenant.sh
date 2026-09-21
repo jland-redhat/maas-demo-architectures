@@ -111,6 +111,11 @@ for _ in $(seq 1 30); do
   sleep 2
 done
 
+if [[ -x "${REPO_ROOT}/infra/scripts/ensure-gateway-allowed-routes.sh" ]]; then
+  echo "Ensuring partner (+ default) gateways allow HTTPRoutes from All namespaces…"
+  "${REPO_ROOT}/infra/scripts/ensure-gateway-allowed-routes.sh" maas-default-gateway "${TENANT_NAME}"
+fi
+
 GATEWAY_SERVICE_NAME="${TENANT_NAME}-openshift-default"
 echo "Creating Route ${TENANT_NAME}-gateway…"
 oc apply -f - <<EOF
@@ -164,6 +169,10 @@ if ! oc get maastenantconfig default-tenant -n "${TENANT_NAMESPACE}" &>/dev/null
 fi
 
 echo "Applying partner models (mistral → ai-tenant-partner; llama → llm-partner)…"
+if [[ -x "${REPO_ROOT}/infra/scripts/ensure-maasmodelref-tenantref.sh" ]]; then
+  echo "Ensuring MaaSModelRef CRD accepts spec.tenantRef…"
+  "${REPO_ROOT}/infra/scripts/ensure-maasmodelref-tenantref.sh"
+fi
 oc apply -f "${DEMO_DIR}/manifests/partner-models.yaml"
 
 # Namespace move: drop stale mistral copies left in llm-partner from older layouts.

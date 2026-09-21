@@ -8,14 +8,17 @@ Start here **before** [deploy/](../deploy/README.md) overlays if `maas-api` / ga
 |------|---------|
 | [kuadrant/](kuadrant/) | `Kuadrant` CR (`kuadrant` / `kuadrant-system` or RHCL ns) |
 | [postgres/](postgres/) | POC PostgreSQL in namespace **`postgres`** |
-| [observability/](observability/) | COO + OpenTelemetry operators; DSCI `metrics.storage` patch |
+| [observability/](observability/) | COO + OpenTelemetry operators; DSCI `metrics.storage` patch; Perses dashboard NetworkPolicy |
+| [hacks/](hacks/) | **Not** official install — one-off lab skew notes/scripts (e.g. Perses TLS) |
 | [scripts/install-infra.sh](scripts/install-infra.sh) | **Install everything** (recommended) |
 | [scripts/setup-kuadrant.sh](scripts/setup-kuadrant.sh) | Apply Kuadrant CR only |
 | [scripts/setup-gateway.sh](scripts/setup-gateway.sh) | `maas-default-gateway` + TLS cert detection |
 | [scripts/setup-authorino-tls.sh](scripts/setup-authorino-tls.sh) | Authorino serving-cert + outbound service CA (from upstream) |
 | [scripts/setup-authorino-oidc-ca.sh](scripts/setup-authorino-oidc-ca.sh) | Mount ingress CA into Authorino for Keycloak OIDC discovery |
 | [scripts/setup-postgres.sh](scripts/setup-postgres.sh) | Postgres + **`maas-db-config`** |
-| [scripts/setup-observability.sh](scripts/setup-observability.sh) | DSCI metrics → `MonitoringStackAvailable=True` |
+| [scripts/setup-observability.sh](scripts/setup-observability.sh) | DSCI metrics + OTEL repair → MonitoringStackAvailable / Showback |
+| [scripts/ensure-maasmodelref-tenantref.sh](scripts/ensure-maasmodelref-tenantref.sh) | Patch `MaaSModelRef` CRD so `spec.tenantRef` is accepted (multi-tenant gateways) |
+| [scripts/ensure-gateway-allowed-routes.sh](scripts/ensure-gateway-allowed-routes.sh) | Re-assert Gateway `allowedRoutes.from: All` (AIGateway can narrow it and block `llm` HTTPRoutes) |
 
 **Not included:** installing ODH/RHOAI, the Kuadrant/RHCL **operator**, or MaaS itself — use upstream [`deploy.sh`](https://github.com/opendatahub-io/models-as-a-service/blob/main/scripts/deploy.sh) / [platform-setup](https://github.com/opendatahub-io/models-as-a-service/blob/main/docs/content/install/platform-setup.md).
 
@@ -115,13 +118,24 @@ Empty DSCI `spec.monitoring.metrics: {}` yields:
 MonitoringStackAvailable=False  reason=MetricsNotConfigured
 ```
 
-`setup-observability.sh` installs COO + OpenTelemetry (if needed), patches DSCI with `metrics.storage` (`5Gi` / `15d` by default), enables User Workload Monitoring, Kuadrant `observability.enable`, and the dashboard `observabilityDashboard` flag.
+`setup-observability.sh` installs COO + OpenTelemetry (if needed), **repairs a stuck OpenTelemetry CSV when CRDs are missing**, patches DSCI with `metrics.storage` (`5Gi` / `15d` by default), enables User Workload Monitoring, Kuadrant `observability.enable`, the dashboard `observabilityDashboard` flag, and a Perses NetworkPolicy so the AI Dashboard can reach Perses.
 
 ```bash
 ./infra/scripts/setup-observability.sh
 METRICS_SIZE=10Gi METRICS_RETENTION=30d ./infra/scripts/setup-observability.sh
 SKIP_OPERATORS=1 ./infra/scripts/setup-observability.sh   # operators already installed
 ```
+
+#### Common lab failures this script fixes
+
+| Symptom | Cause | Fix in script |
+|---------|--------|----------------|
+| Dashboard: `Unexpected token '<', "<!doctype "... is not valid JSON` (Perses timeouts) | Perses NetworkPolicy only allows `perses-operator`; AI Dashboard calls time out and the UI parses an HTML error page as JSON | Applies `perses-dashboard-access` NetworkPolicy (dashboard / console / ingress → Perses `:8080`) |
+| `Monitoring` `Ready=False` / `OpenTelemetryCollectorCRDNotFoundReason` | OpenTelemetry Subscription stuck (`Pending` / `RequirementsNotMet`) with CRDs missing | Deletes stuck CSV/InstallPlan and re-applies `opentelemetry-product` |
+
+> **Product gap (not in this repo):** RHOAI may omit an HTTPRoute that maps `data-science-gateway` `/observability/api` → Perses `/api`. Without that route the SPA HTML is returned for API calls. Fix upstream / on-cluster; do not bake into demo infra.
+>
+> **Lab skew (hack, not install):** Perses CrashLoop on `--web.tls-min-version`, or a leftover `perses-tls-workaround` that keeps `perses-operator` at 0 (breaks conversion webhooks) — see [hacks/perses-tls-skew.hack.sh](hacks/perses-tls-skew.hack.sh).
 
 Reference: [Managing observability (RHOAI)](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_openshift_ai/managing-observability_managing-rhoai), upstream [observability setup](https://github.com/opendatahub-io/models-as-a-service/blob/main/docs/content/observability/setup.md).
 
@@ -137,8 +151,11 @@ oc get secret maas-db-config -n redhat-ai-gateway-infra   # RHOAI
 oc get secret maas-db-config -n odh-ai-gateway-infra      # ODH
 oc get dscinitialization default-dsci \
   -o jsonpath='{.status.conditions[?(@.type=="MonitoringStackAvailable")]}{"\n"}'
+oc get monitoring -A
 oc get monitoringstack -A
 oc get pods -n redhat-ods-monitoring   # RHOAI; ODH may use opendatahub
+oc get csv -n openshift-operators | grep opentelemetry
+oc get crd opentelemetrycollectors.opentelemetry.io
 ```
 
 If `maas-api` was already running when the Secret was missing or wrong, restart it after setup:

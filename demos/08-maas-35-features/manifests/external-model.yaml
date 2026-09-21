@@ -160,3 +160,36 @@ spec:
   modelRef:
     kind: ExternalModel
     name: sim-messages
+---
+# Dotted catalog id (DNS-1123); name == targetModel
+apiVersion: inference.opendatahub.io/v1alpha1
+kind: ExternalModel
+metadata:
+  name: openai.gpt-oss-20b
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "Open AI Model openai.gpt-oss-20b"
+spec:
+  externalProviderRefs:
+    - ref:
+        name: sim-openai
+      targetModel: openai.gpt-oss-20b
+      apiFormat: openai-chat
+      path: /v1/chat/completions
+      weight: 100
+---
+apiVersion: maas.opendatahub.io/v1alpha1
+kind: MaaSModelRef
+metadata:
+  name: openai.gpt-oss-20b
+  namespace: llm
+  labels:
+    app.kubernetes.io/part-of: maas-demo-architectures
+  annotations:
+    openshift.io/display-name: "Open AI Model openai.gpt-oss-20b"
+spec:
+  modelRef:
+    kind: ExternalModel
+    name: openai.gpt-oss-20b

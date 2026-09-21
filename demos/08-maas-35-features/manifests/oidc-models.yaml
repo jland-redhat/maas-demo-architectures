@@ -1,5 +1,9 @@
 # Demo 08 — OIDC tenant models (llm-oidc). Gateway ref: oidc (openshift-ingress).
 # Groups on entitlements match upstream Keycloak test realm tenant-a (Engineering, Project-Alpha).
+#
+# MaaSModelRef.spec.tenantRef: oidc — required so the controller expects Gateway oidc
+# (not maas-default-gateway). If the cluster CRD omits tenantRef, run:
+#   ./infra/scripts/ensure-maasmodelref-tenantref.sh
 ---
 apiVersion: v1
 kind: Namespace
