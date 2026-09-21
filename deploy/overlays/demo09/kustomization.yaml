@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Demo 09 is additive: base sims remain available; this overlay only adds the
+# EPP-enabled LLMIS + entitlements (does not require wiping other demos).
+resources:
+  - ../../base
+  - ../../../demos/09-llm-d-epp/manifests/epp-sim.yaml
+  - ../../../demos/09-llm-d-epp/manifests/maas-entitlements.yaml

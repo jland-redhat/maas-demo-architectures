@@ -1,0 +1,9 @@
+# OpenShift Groups required for Demo 09 (research persona + presenter via maas-admin).
+# Keep membership in sync with shared/identity/common-openshift-groups.yaml.
+---
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: maas-demo-research
+users:
+  - alice

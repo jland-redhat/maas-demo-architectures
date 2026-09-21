@@ -75,3 +75,8 @@ models:
     displayName: GPT-OSS 20B
     contextWindow: 32768
     notes: "OIDC tenant simulator in namespace llm-oidc."
+
+  - maasModelRefName: demo09-epp-sim
+    displayName: Demo 09 EPP sim (llm-d scheduler)
+    contextWindow: 32768
+    notes: "Demo 09 multi-replica llm-d-inference-sim with router.scheduler (InferencePool + EPP)."

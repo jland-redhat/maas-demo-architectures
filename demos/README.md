@@ -18,6 +18,7 @@ Each folder is a **governance pattern** for [opendatahub-io/models-as-a-service]
 | [06-abac-environment](06-abac-environment/) | Metering metadata | You need **labels** on subscriptions and **chargeback** metadata on policies for billing telemetry, not just RBAC. |
 | [07-openclaw-agent](07-openclaw-agent/) | Agent via MaaS | **OpenClaw** (or any OpenAI-compatible agent) calls **Llama** through the MaaS gateway with a user-minted **`sk-oai-*`** key bound to one subscription. |
 | [08-maas-35-features](08-maas-35-features/) | RHOAI / ODH **3.5** gateway | **BBR**, **ExternalModel**, **three tenants** (default + partner + **OIDC/Keycloak** via upstream samples). |
+| [09-llm-d-epp](09-llm-d-epp/) | llm-d **EPP** smoke | Multi-replica simulator with **`router.scheduler`** → `InferencePool` + Endpoint Picker in path |
 
 | Folder | What you apply (summary) |
 |--------|--------------------------|
@@ -29,6 +30,7 @@ Each folder is a **governance pattern** for [opendatahub-io/models-as-a-service]
 | [06-abac-environment](06-abac-environment/) | One subscription + **`tokenMetadata`**; **three** policies with **`meteringMetadata`** |
 | [07-openclaw-agent](07-openclaw-agent/) | One subscription + policy for **Llama**; wire [openclaw-infra](https://github.com/redhat-et/openclaw-infra) to MaaS |
 | [08-maas-35-features](08-maas-35-features/) | Default (Granite + llm-katan sims + `sim-stream`) + partner (Mistral+Llama) + **OIDC** (Qwen+GPT-OSS / Keycloak tenant-a) |
+| [09-llm-d-epp](09-llm-d-epp/) | `demo09-epp-sim` LLMIS (**3** replicas + scheduler) + subscription/policy; `validate-epp.sh` |
 
 Shared: [shared/models/catalog.yaml](../shared/models/catalog.yaml), [shared/identity/](../shared/identity/).
 

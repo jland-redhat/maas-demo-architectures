@@ -24,7 +24,7 @@ To switch the default bundle, edit the root `kustomization.yaml` and change the 
 oc kustomize --load-restrictor LoadRestrictionsNone deploy/overlays/demo02 | oc apply -f -
 ```
 
-Replace `demo02` with `demo01` … `demo08` or use `models-only` (no `MaaS*` entitlements — only base).
+Replace `demo02` with `demo01` … `demo09` or use `models-only` (no `MaaS*` entitlements — only base). Demo **09** adds the llm-d EPP simulator (`demo09-epp-sim`); see [demos/09-llm-d-epp](../demos/09-llm-d-epp/).
 
 **Models-only** (no subscriptions/policies):
 
